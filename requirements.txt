@@ -1,0 +1,5 @@
+numpy
+pandas
+opencv-python
+scikit-image
+IQM-VIS==0.2.5.20

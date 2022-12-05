@@ -10,8 +10,15 @@ Install dependancies
 ```
 pip install -r requirements.txt
 ```
+## Runnig the tactip example
+Define and run the UI using
+```
+python make_tactip_UI.py
+```
 
-## Running the example
+## Running the example with posenet errors
+You can also include posenet errors, but this requires extra data for the error and needs to create the custom data handler for the UI's data API - defined in [posenet/data_holder.py](posenet/data_holder.py)
 ```
-python make_UI.py
+python posenet/make_UI.py
 ```
+Note that you will need the weights for the pytorch posenet (message me for them).

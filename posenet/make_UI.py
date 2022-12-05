@@ -1,9 +1,8 @@
 import os
 import numpy as np
 import IQM_VIS
-import sys; sys.path.append('..'); sys.path.append('.')
 import data_holder
-import image_utils
+import sys; sys.path.append('..'); import image_utils
 
 
 def run():
@@ -19,15 +18,17 @@ def run():
                      'SSIM': IQM_VIS.metrics.SSIM_image()}
 
     # first row of images
-    sim_dataset_csv = os.path.join(os.path.dirname(os.path.abspath(__file__)),'data/sim/surface_3d/tap/128x128/csv_train/targets.csv')
+    sim_dataset_csv = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..','data/sim/surface_3d/tap/128x128/csv_train/targets.csv')
 
     data_sim = data_holder.dataset_holder(sim_dataset_csv,
                                   metric,
                                   metric_images,
+                                  pose_path=os.path.join(os.path.expanduser('~'), 'summer-project/models/pose_estimation/surface_3d/shear/sim_LR:0.0001_BS:16/run_0/checkpoints/best_model.pth'),
                                   sim=True)
     data_real = data_holder.dataset_holder(sim_dataset_csv,
                                   metric,
                                   metric_images,
+                                  pose_path=os.path.join(os.path.expanduser('~'), 'summer-project/models/pose_estimation/surface_3d/shear/sim_LR:0.0001_BS:16/run_0/checkpoints/best_model.pth'),
                                   sim=False)
     # second row of images
     # define the transformations

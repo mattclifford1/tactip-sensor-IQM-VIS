@@ -6,10 +6,9 @@ import os
 import numpy as np
 import pandas as pd
 
-import sys; sys.path.append('..'); sys.path.append('.')
+import sys; sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import image_utils
-# import networks
-# import metrics
+import networks
 
 '''
 extension of data_holder that allows to iterate through a dataset
@@ -18,7 +17,7 @@ class dataset_holder:
     def __init__(self, data_set_csv,
                        metrics: dict,
                        metric_images: dict,
-                       # pose_path=os.path.join('os.path.expanduser('~')', 'summer-project/models/pose_estimation/surface_3d/shear/sim_LR:0.0001_BS:16/run_0/checkpoints/best_model.pth'),
+                       pose_path=os.path.join(os.path.expanduser('~'), 'summer-project/models/pose_estimation/surface_3d/shear/sim_LR:0.0001_BS:16/run_0/checkpoints/best_model.pth'),
                        sim=True):
         self.df = pd.read_csv(data_set_csv)
         self.sim = sim
@@ -28,10 +27,10 @@ class dataset_holder:
             self.im_dir = os.path.join(os.path.dirname(image_utils.get_real_csv_given_sim(data_set_csv)), 'images')
         self._load_image_data(0)   # load the first image
         self.metrics = metrics
-        # self.metrics['pose_error'] = self._get_pose_error
+        self.metrics['pose_error'] = self._get_pose_error
         self.metric_images = metric_images
         self._check_inputs()
-        # self.pose_esimator_sim = networks.pose_estimation(pose_path, sim=self.sim)
+        self.pose_esimator_sim = networks.pose_estimation(pose_path, sim=self.sim)
 
     def _load_image_data(self, i):
         image = self.df.iloc[i]['sensor_image']
@@ -46,13 +45,13 @@ class dataset_holder:
             self.image_reference = (image_name, image_utils.process_im(raw_image_data, data_type='real'))
             self.image_to_transform = self.image_reference
 
-    #     self._load_pose_data(i)
-    #
-    # def _load_pose_data(self, i):
-    #     poses = ['pose_'+str(i) for i in range(1,7)]
-    #     self.pose_data = {}
-    #     for pose in poses:
-    #         self.pose_data[pose] = self.df.iloc[i][pose]
+        self._load_pose_data(i)
+
+    def _load_pose_data(self, i):
+        poses = ['pose_'+str(i) for i in range(1,7)]
+        self.pose_data = {}
+        for pose in poses:
+            self.pose_data[pose] = self.df.iloc[i][pose]
 
     def __len__(self):
         return len(self.df)
@@ -78,10 +77,10 @@ class dataset_holder:
             results[metric] = self.metrics[metric](self.get_reference_image(), transformed_image)
         return results
 
-    # def _get_pose_error(self, im, transformed_image):
-    #     pose_error_results_dict = self.pose_esimator_sim.get_error(transformed_image, self.pose_data)
-    #     mae = pose_error_results_dict['MAE'][0]
-    #     return mae
+    def _get_pose_error(self, im, transformed_image):
+        pose_error_results_dict = self.pose_esimator_sim.get_error(transformed_image, self.pose_data)
+        mae = pose_error_results_dict['MAE'][0]
+        return mae
 
     def get_metric_images(self, transformed_image):
         results = {}

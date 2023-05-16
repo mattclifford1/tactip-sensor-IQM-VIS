@@ -22,6 +22,7 @@ def crop_to_square(image):
     image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_AREA)
     # Add channel axis
     image = image[..., np.newaxis]
+    image = np.concatenate([image, image, image], axis=2)
     return image.astype(np.float32) / 255.0
 
 def process_im(image, data_type='sim'):
@@ -42,6 +43,7 @@ def process_im(image, data_type='sim'):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # Add channel axis
         image = image[..., np.newaxis]
+    image = np.concatenate([image, image, image], axis=2) 
     return image.astype(np.float32) / 255.0
 
 def get_real_csv_given_sim(sim_csv):

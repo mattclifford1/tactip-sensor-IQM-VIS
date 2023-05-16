@@ -1,18 +1,21 @@
 import os
 import numpy as np
-import IQM_VIS
+try:
+    import IQM_VIS
+except ModuleNotFoundError:
+    import IQM_Vis as IQM_VIS
 import image_utils
 
 
 def run():
     # metrics functions must return a single value
-    metric = {'MAE': IQM_VIS.metrics.MAE,
-              'MSE': IQM_VIS.metrics.MSE,
-              '1-SSIM': IQM_VIS.metrics.ssim()}
+    metric = {'MAE': IQM_VIS.metrics.MAE(),
+              'MSE': IQM_VIS.metrics.MSE(),
+              '1-SSIM': IQM_VIS.metrics.SSIM()}
 
     # metrics images return a numpy image
-    metric_images = {'MSE': IQM_VIS.metrics.MSE_image,
-                     'SSIM': IQM_VIS.metrics.SSIM_image()}
+    metric_images = {'MSE': IQM_VIS.metrics.MSE(return_image=True),
+                     'SSIM': IQM_VIS.metrics.SSIM(return_image=True)}
 
     data = custom_image_handler(get_image_list(),
                                   image_utils.load_real_image,
@@ -23,10 +26,10 @@ def run():
         'rotation':{'min':-10, 'max':10, 'function':IQM_VIS.transforms.rotation},    # normal input
         'blur':{'min':1, 'max':41, 'normalise':'odd', 'function':IQM_VIS.transforms.blur},  # only odd ints
         'brightness':{'min':-1.0, 'max':1.0, 'function':IQM_VIS.transforms.brightness},   # normal but with float
-        'x_shift':{'min':-0.1, 'max':0.1, 'function':IQM_VIS.transforms.x_shift},
-        'y_shift':{'min':-0.1, 'max':0.1, 'function':IQM_VIS.transforms.y_shift},
-        'zoom':{'min':0.8, 'max':1.2, 'function':IQM_VIS.transforms.zoom_image, 'init_value': 1, 'num_values':21},  # requires non standard slider params
-        'threshold':{'min':-40, 'max':40, 'function':IQM_VIS.transforms.binary_threshold},
+        'x_shift':{'min':-0.05, 'max':0.05, 'function':IQM_VIS.transforms.x_shift, 'num_values':41},
+        'y_shift':{'min':-0.05, 'max':0.05, 'function':IQM_VIS.transforms.y_shift, 'num_values':41},
+        'zoom':{'min':0.9, 'max':1.1, 'function':IQM_VIS.transforms.zoom_image, 'init_value': 1, 'num_values':41},  # requires non standard slider params
+        'threshold':{'min':-40, 'max':40, 'function':IQM_VIS.transforms.binary_threshold, 'num_values':41},
         }
 
     # use the API to create the UI
@@ -55,15 +58,15 @@ class custom_image_handler(IQM_VIS.dataset_holder):
                        image_loader,     # function to load image files
                        metrics: dict,
                        metric_images: dict):
-        super().__init__(image_list, image_loader, metrics, metric_images)
+        super().__init__(image_list, metrics, metric_images, image_loader)
 
     def _load_image_data(self, i):
         # add to this method since the reference and transform image require different preprocessing
         super()._load_image_data(i)
         # apply different cropping
         image = self.image_loader(self.current_file)
-        self.image_reference = (self.image_name, image_utils.process_im(image, data_type='real'))
-        self.image_to_transform = (self.image_name, image_utils.crop_to_square(image))
+        self.image_reference = self.image_storer(self.image_reference.name, image_utils.process_im(image, data_type='real'))
+        self.image_to_transform = self.image_storer(self.image_to_transform.name, image_utils.crop_to_square(image))
 
     # def get_reference_image(self):
     #     # preprocess the reference image

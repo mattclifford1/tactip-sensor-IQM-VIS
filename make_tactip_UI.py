@@ -1,21 +1,18 @@
 import os
 import numpy as np
-try:
-    import IQM_VIS
-except ModuleNotFoundError:
-    import IQM_Vis as IQM_VIS
+import IQM_Vis
 import image_utils
 
 
 def run():
     # metrics functions must return a single value
-    metric = {'MAE': IQM_VIS.metrics.MAE(),
-              'MSE': IQM_VIS.metrics.MSE(),
-              '1-SSIM': IQM_VIS.metrics.SSIM()}
+    metric = {'MAE': IQM_Vis.metrics.MAE(),
+              'MSE': IQM_Vis.metrics.MSE(),
+              '1-SSIM': IQM_Vis.metrics.SSIM()}
 
     # metrics images return a numpy image
-    metric_images = {'MSE': IQM_VIS.metrics.MSE(return_image=True),
-                     'SSIM': IQM_VIS.metrics.SSIM(return_image=True)}
+    metric_images = {'MSE': IQM_Vis.metrics.MSE(return_image=True),
+                     'SSIM': IQM_Vis.metrics.SSIM(return_image=True)}
 
     data = custom_image_handler(get_image_list(),
                                   image_utils.load_real_image,
@@ -23,17 +20,17 @@ def run():
                                   metric_images)
     # define the transformations
     transformations = {
-        'rotation':{'min':-10, 'max':10, 'function':IQM_VIS.transforms.rotation},    # normal input
-        'blur':{'min':1, 'max':41, 'normalise':'odd', 'function':IQM_VIS.transforms.blur},  # only odd ints
-        'brightness':{'min':-1.0, 'max':1.0, 'function':IQM_VIS.transforms.brightness},   # normal but with float
-        'x_shift':{'min':-0.05, 'max':0.05, 'function':IQM_VIS.transforms.x_shift, 'num_values':41},
-        'y_shift':{'min':-0.05, 'max':0.05, 'function':IQM_VIS.transforms.y_shift, 'num_values':41},
-        'zoom':{'min':0.9, 'max':1.1, 'function':IQM_VIS.transforms.zoom_image, 'init_value': 1, 'num_values':41},  # requires non standard slider params
-        'threshold':{'min':-40, 'max':40, 'function':IQM_VIS.transforms.binary_threshold, 'num_values':41},
+        'rotation':{'min':-10, 'max':10, 'function':IQM_Vis.transforms.rotation},    # normal input
+        'blur':{'min':1, 'max':41, 'normalise':'odd', 'function':IQM_Vis.transforms.blur},  # only odd ints
+        'brightness':{'min':-1.0, 'max':1.0, 'function':IQM_Vis.transforms.brightness},   # normal but with float
+        'x_shift':{'min':-0.05, 'max':0.05, 'function':IQM_Vis.transforms.x_shift, 'num_values':41},
+        'y_shift':{'min':-0.05, 'max':0.05, 'function':IQM_Vis.transforms.y_shift, 'num_values':41},
+        'zoom':{'min':0.9, 'max':1.1, 'function':IQM_Vis.transforms.zoom_image, 'init_value': 1, 'num_values':41},  # requires non standard slider params
+        'threshold':{'min':-40, 'max':40, 'function':IQM_Vis.transforms.binary_threshold, 'num_values':41},
         }
 
     # use the API to create the UI
-    IQM_VIS.make_UI(data,
+    IQM_Vis.make_UI(data,
                 transformations,
                 metrics_avg_graph=True)
 
@@ -50,7 +47,7 @@ def get_image_list():
     return image_paths
 
 
-class custom_image_handler(IQM_VIS.dataset_holder):
+class custom_image_handler(IQM_Vis.dataset_holder):
     '''
     modify the image handler for the data API to give a difference reference image
     '''
